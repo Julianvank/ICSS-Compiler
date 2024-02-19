@@ -45,7 +45,7 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: (variableAssignment* stylerule+);
+stylesheet: (variableAssignment* stylerule+) EOF;
 
 stylerule : (selector OPEN_BRACE declaration+ CLOSE_BRACE) ;
 
@@ -56,10 +56,13 @@ variableAssignment : variableReference ASSIGNMENT_OPERATOR expression SEMICOLON;
 variableReference : CAPITAL_IDENT;
 
 property : LOWER_IDENT;
-expression : (literal | variableReference)
-            | (operation literal | variableReference)*;
+expression :  expression operation expression
+            | variableReference | literal;
+
+//(literal | variableReference)
+//            | (operation literal | variableReference)*;
 // |
-operation : multiplyOperation | addOperation | subtractOperation expression;
+operation : multiplyOperation | addOperation | subtractOperation;
 literal : colorLiteral | pixelLiteral | percentageLiteral | boolLiteral | scalarLiteral;
 
 idSelector : ID_IDENT;

@@ -75,6 +75,24 @@ public class ASTListener extends ICSSBaseListener {
         enter(new VariableReference(ctx.getText()), ctx);
     }
 
+    @Override
+    public void enterExpression(ICSSParser.ExpressionContext ctx) {
+        if (ctx.getChildCount() == 3) {
+            Operation operation;
+            switch (ctx.getChild(1).getText()) {
+                case "*":
+                    operation = new MultiplyOperation();
+                    break;
+                case "+":
+                    operation = new AddOperation();
+                    break;
+                default:
+                    operation = new SubtractOperation();
+            }
+            currentContainer.push(operation);
+        }
+    }
+
     /*
      * Selector Expressions
      */
@@ -93,20 +111,20 @@ public class ASTListener extends ICSSBaseListener {
         enter(new TagSelector(ctx.getText()), ctx);
     }
 
-    @Override
-    public void enterMultiplyOperation(ICSSParser.MultiplyOperationContext ctx) {
-        enter(new MultiplyOperation(), ctx);
-    }
-
-    @Override
-    public void enterAddOperation(ICSSParser.AddOperationContext ctx) {
-        enter(new AddOperation(), ctx);
-    }
-
-    @Override
-    public void enterSubtractOperation(ICSSParser.SubtractOperationContext ctx) {
-        enter(new SubtractOperation(), ctx);
-    }
+//    @Override
+//    public void enterMultiplyOperation(ICSSParser.MultiplyOperationContext ctx) {
+//        enter(new MultiplyOperation(), ctx);
+//    }
+//
+//    @Override
+//    public void enterAddOperation(ICSSParser.AddOperationContext ctx) {
+//        enter(new AddOperation(), ctx);
+//    }
+//
+//    @Override
+//    public void enterSubtractOperation(ICSSParser.SubtractOperationContext ctx) {
+//        enter(new SubtractOperation(), ctx);
+//    }
 
     /*
      * Literal Expressions
@@ -145,9 +163,9 @@ public class ASTListener extends ICSSBaseListener {
     public void exitEveryRule(ParserRuleContext ctx) {
         if (!visitors.contains(ctx)) return;
         try {
-                visitors.remove(ctx);
+            visitors.remove(ctx);
 
-                currentContainer.pop();
+            currentContainer.pop();
         } catch (UnderflowException e) {
             throw new RuntimeException(e);
         }
