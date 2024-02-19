@@ -7,6 +7,7 @@ import java.util.Objects;
 public class PercentageLiteral extends Literal {
     public int value;
 
+    public PercentageLiteral(){}
     public PercentageLiteral(int value) {
         this.value = value;
     }

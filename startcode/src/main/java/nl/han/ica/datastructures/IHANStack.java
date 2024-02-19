@@ -11,11 +11,11 @@ public interface IHANStack<T> {
      * Pops (and removes) value at top of stack
      * @return popped value
      */
-    T pop();
+    T pop() throws UnderflowException;
 
     /**
      * Peeks at the top of the stack. Does not remove anything
      * @return value at the top of the stack
      */
-    T peek();
+    T peek() throws UnderflowException;
 }
