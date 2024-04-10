@@ -1,9 +1,7 @@
 package nl.han.ica.datastructures;
 
-import nl.han.ica.icss.ast.ASTNode;
-
 public class HANStack<AnyType> implements IHANStack{
-    private AnyType [] theArray;
+    private AnyType[] theArray;
     private int topOfStack; //array Index of top elements
     private static final int DEFAULT_CAPACITY = 10;
 
@@ -37,13 +35,21 @@ public class HANStack<AnyType> implements IHANStack{
     @Override
     public AnyType peek() throws UnderflowException {
         if(isEmpty()){
-            throw new UnderflowException("ArrayStack top");
+            throw new UnderflowException("ArrayStack top finds empty Stack");
         }
         return theArray[topOfStack];
     }
 
+    @Override
+    public AnyType peekAndPop() throws UnderflowException {
+        if(isEmpty()){
+            throw new UnderflowException("ArrayStack topAndPop");
+        }
+        return theArray[topOfStack--];
+    }
+
     private void doubleArray(AnyType[] array){
-        AnyType[] tmp = (AnyType[]) new Object[2* array.length];
+        AnyType[] tmp = (AnyType[]) new Object[array.length*2];
         for (int i = 0; i < array.length; i++) {
             tmp[i] = array[i];
         }
