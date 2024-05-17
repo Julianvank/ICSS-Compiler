@@ -87,10 +87,10 @@ public class ASTListener extends ICSSBaseListener {
 
     @Override
     public void exitDeclaration(ICSSParser.DeclarationContext ctx) {
-        ASTNode variableAssignment;
+        ASTNode node;
         try {
-            variableAssignment = currentContainer.pop();
-            currentContainer.peek().addChild(variableAssignment);
+            node = currentContainer.pop();
+            currentContainer.peek().addChild(node);
         } catch (UnderflowException e) {
             throw new RuntimeException(e);
         }
@@ -345,7 +345,14 @@ public class ASTListener extends ICSSBaseListener {
     @Override
     public void enterIfClause(ICSSParser.IfClauseContext ctx) {
         ASTNode node = new IfClause();
+        pushStack(node);
+    }
+
+    @Override
+    public void exitIfClause(ICSSParser.IfClauseContext ctx) {
+        ASTNode node;
         try {
+            node = currentContainer.pop();
             currentContainer.peek().addChild(node);
         } catch (UnderflowException e) {
             throw new RuntimeException(e);
@@ -353,11 +360,17 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
-    public void exitIfClause(ICSSParser.IfClauseContext ctx) {
-        ASTNode variableAssignment;
+    public void enterElseClause(ICSSParser.ElseClauseContext ctx) {
+        ASTNode node = new ElseClause();
+        pushStack(node);
+    }
+
+    @Override
+    public void exitElseClause(ICSSParser.ElseClauseContext ctx) {
+        ASTNode node;
         try {
-            variableAssignment = currentContainer.pop();
-            currentContainer.peek().addChild(variableAssignment);
+            node = currentContainer.pop();
+            currentContainer.peek().addChild(node);
         } catch (UnderflowException e) {
             throw new RuntimeException(e);
         }
