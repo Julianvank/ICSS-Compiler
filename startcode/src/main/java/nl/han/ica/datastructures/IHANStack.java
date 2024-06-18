@@ -19,5 +19,5 @@ public interface IHANStack<T> {
      */
     T peek() throws UnderflowException;
 
-    Object peekAndPop() throws UnderflowException;
+    T peekAndPop() throws UnderflowException;
 }

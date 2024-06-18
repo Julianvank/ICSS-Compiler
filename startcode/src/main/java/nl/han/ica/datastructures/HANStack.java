@@ -1,6 +1,6 @@
 package nl.han.ica.datastructures;
 
-public class HANStack<AnyType> implements IHANStack{
+public class HANStack<AnyType> implements IHANStack<AnyType>{
     private AnyType[] theArray;
     private int topOfStack; //array Index of top elements
     private static final int DEFAULT_CAPACITY = 10;
@@ -40,6 +40,11 @@ public class HANStack<AnyType> implements IHANStack{
         return theArray[topOfStack];
     }
 
+    /**
+     * return top of stack before poping top of stack.
+     * @return AnyType
+     * @throws UnderflowException
+     */
     @Override
     public AnyType peekAndPop() throws UnderflowException {
         if(isEmpty()){

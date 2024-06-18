@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
- * An assignment binds a expression to an identifier.
+ * An assignment binds an expression to an identifier.
  *
  */
 public class VariableAssignment extends ASTNode {

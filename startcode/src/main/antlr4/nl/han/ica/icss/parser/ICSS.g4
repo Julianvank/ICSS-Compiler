@@ -47,7 +47,7 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 stylesheet: (variableAssignment* stylerule+) EOF;
 
-stylerule : (selector OPEN_BRACE (ifClause |declaration )* CLOSE_BRACE) ;
+stylerule : (selector OPEN_BRACE (ifClause | declaration | variableAssignment)* CLOSE_BRACE) ;
 
 selector : (idSelector | classSelector | tagSelector);
 declaration : (property COLON expression SEMICOLON);
