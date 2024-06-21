@@ -7,7 +7,7 @@ public class VariableReference extends Expression {
 	public String name;
 	
 	public VariableReference(String name) {
-		super();
+		super(); //TODO kijk waarom hier een super() is
 		this.name = name;
 	}
 

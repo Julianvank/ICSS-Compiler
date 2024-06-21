@@ -1,73 +1,114 @@
 package nl.han.ica.icss.checker;
 
+import nl.han.ica.datastructures.*;
 import nl.han.ica.datastructures.LinkedList;
-import nl.han.ica.datastructures.LinkedListIterator;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 
 public class Checker {
 
-    //Gebruik de LinkedList om de scope van variabelen bij te houden.
-    private LinkedList<HashMap<String, ExpressionType>> variableTypes;
-//    private IHANLinkedList<ASTNode> astList;
+    //    private HANStack<HashMap<String, ExpressionType>> symbolTable;
+    private LinkedList<HashMap<String, ExpressionType>> symbolTable;
 
-    /*
-     * Een ASTVisitor die een check functie heeft. De check functiemaakt gebruik van een bepaalde checker.
-     * Dus variable assignment worden gechecked met een instance van INodeChecker
-     *
-     */
-    //TODO mark every semantic error with the setError method.
     public void check(AST ast) {
-        variableTypes = new LinkedList<>();
-        variableTypes.addFirst(new HashMap<String, ExpressionType>());
+        symbolTable = new LinkedList<>();
+        pushScope();
         traverseAST(ast.root);
     }
 
     public void pushScope() {
-        variableTypes.addFirst(new HashMap<>());
+        symbolTable.addFirst(new HashMap<>());
+    }
+
+    public void popScope() {
+        symbolTable.removeFirst();
     }
 
     private void traverseAST(ASTNode node) {
-        int depth = 0;
 
-        for (ASTVisitor vis = new ASTVisitor(node); vis.isValid(); vis.advance()) {
-            if (vis.retrieve() instanceof VariableAssignment) {
-                checkAndAssignVariable((VariableAssignment) vis.retrieve());
+//        for (ASTVisitor vis = new ASTVisitor(node); vis.isValid(); vis.advance()) {
+        for (ASTNode cNode : node.getChildren()) {
+            if (cNode instanceof VariableAssignment) {
+                checkAndAssignVariable(cNode);
             }
-            if (vis.retrieve() instanceof Stylerule) {
-                checkStyleRule((Stylerule) vis.retrieve());
+            if (cNode instanceof Stylerule) {
+                checkStyleRule(cNode);
             }
-
         }
-//        printVariables();
     }
 
-    private void checkStyleRule(Stylerule node) {
+    private void checkStyleRule(ASTNode node) {
         pushScope();
-        for (ASTVisitor vis = new ASTVisitor(node); vis.isValid(); vis.advance()) {
-            if (vis.retrieve() instanceof VariableAssignment) {
-                checkAndAssignVariable((VariableAssignment) vis.retrieve());
+
+        List<ASTNode> variables = new ArrayList<>();
+        List<ASTNode> declarations = new ArrayList<>();
+        List<ASTNode> ifStatements = new ArrayList<>();
+
+        for (ASTNode n : node.getChildren()) {
+            if (n instanceof VariableAssignment) {
+                variables.add(n);
+
+            }
+            if (n instanceof Declaration) {
+                declarations.add(n);
+            }
+            if(n instanceof IfClause){
+                ifStatements.add(n);
+            }
+        }
+        variables.forEach((this::checkAndAssignVariable));
+        declarations.forEach((n) -> evaluateExpression(((Declaration) n).expression));
+        ifStatements.forEach(this::evaluateIfClause);
+
+        popScope();
+    }
+
+    private void evaluateIfClause(ASTNode astNode){
+        IfClause cNode = (IfClause) astNode;
+
+        if(!(getType(cNode.conditionalExpression) == ExpressionType.BOOL)){
+            astNode.setError("An if statement expects a conditional Boolean as expression");
+        }
+    }
+
+    private void evaluateExpression(ASTNode node) {
+        if (node instanceof VariableReference) {
+            if (loopUpReference(node) == ExpressionType.UNDEFINED) {
+                String error = "Variable " + node + " is not declared.";
+                node.setError(error);
+            }
+        } else if (node instanceof Expression) {
+            if (getType(node) == ExpressionType.UNDEFINED) {
+                node.setError("Invalid expression use");
             }
         }
     }
 
-    private void checkAndAssignVariable(VariableAssignment current) {
-        String name = current.name.name;
-        ExpressionType type = getType(current.expression);
+    private ExpressionType loopUpReference(ASTNode node) {
+        LinkedListIterator<HashMap<String, ExpressionType>> itr = symbolTable.zeroth();
 
-        variableTypes.getFirst().put(name, type);
-        System.out.println(name + " " + type);
+        String name = ((VariableReference) node).name;
+        for (; itr.isValid(); itr.advance()) {
+            if (itr.retrieve() != null && itr.retrieve().containsKey(name)) {
+                return itr.retrieve().get(name);
+            }
+        }
+        return ExpressionType.UNDEFINED;
+    }
 
+
+    private void checkAndAssignVariable(ASTNode node) {
+
+        String name = ((VariableAssignment) node).name.name;
+        ExpressionType type = getType(((VariableAssignment) node).expression);
+
+        symbolTable.getFirst().put(name, type);
     }
 
     /**
@@ -77,9 +118,14 @@ public class Checker {
      * @return the Expression type
      */
     private ExpressionType getType(ASTNode node) {
-        if (node.getChildren().isEmpty()) {
+        if (node instanceof Literal) {
             return ((Literal) node).getType();
         }
+
+        if (node instanceof VariableReference) {
+            return loopUpReference(node);
+        }
+
 
         ExpressionType lhsType = getType(((Operation) node).lhs);
         ExpressionType rhsType = getType(((Operation) node).rhs);
