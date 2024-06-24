@@ -53,7 +53,6 @@ public class Checker {
         for (ASTNode n : node.getChildren()) {
             if (n instanceof VariableAssignment) {
                 variables.add(n);
-
             }
             if (n instanceof Declaration) {
                 declarations.add(n);
@@ -61,6 +60,7 @@ public class Checker {
             if(n instanceof IfClause){
                 ifStatements.add(n);
             }
+
         }
         variables.forEach((this::checkAndAssignVariable));
         declarations.forEach((n) -> evaluateExpression(((Declaration) n).expression));
@@ -69,12 +69,18 @@ public class Checker {
         popScope();
     }
 
+    private void evaluateElseClause(ASTNode astNode){
+        checkStyleRule(astNode);
+    }
+
     private void evaluateIfClause(ASTNode astNode){
         IfClause cNode = (IfClause) astNode;
 
         if(!(getType(cNode.conditionalExpression) == ExpressionType.BOOL)){
             astNode.setError("An if statement expects a conditional Boolean as expression");
         }
+
+        checkStyleRule(astNode);
     }
 
     private void evaluateExpression(ASTNode node) {

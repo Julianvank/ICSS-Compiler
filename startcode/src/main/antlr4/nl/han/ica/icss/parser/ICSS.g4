@@ -52,8 +52,8 @@ stylerule : (selector OPEN_BRACE (ifClause | declaration | variableAssignment)* 
 selector : (idSelector | classSelector | tagSelector);
 declaration : (property COLON expression SEMICOLON);
 
-ifClause : IF BOX_BRACKET_OPEN variableReference BOX_BRACKET_CLOSE OPEN_BRACE (ifClause | declaration)* (CLOSE_BRACE | elseClause);
-elseClause: CLOSE_BRACE ELSE OPEN_BRACE declaration* CLOSE_BRACE;
+ifClause : IF BOX_BRACKET_OPEN variableReference BOX_BRACKET_CLOSE OPEN_BRACE (ifClause | declaration | variableAssignment)* (CLOSE_BRACE | elseClause);
+elseClause: CLOSE_BRACE ELSE OPEN_BRACE (ifClause | declaration | variableAssignment)* CLOSE_BRACE;
 
 variableAssignment : variableReference ASSIGNMENT_OPERATOR expression SEMICOLON;
 variableReference : CAPITAL_IDENT;
