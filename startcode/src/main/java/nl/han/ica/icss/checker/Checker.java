@@ -120,6 +120,8 @@ public class Checker {
      * @param node the node of the expression to get the type of.
      * @return the Expression type
      */
+
+    //TODO replace expressionType met PropertyName in de literals
     private ExpressionType getType(ASTNode node) {
         if (node instanceof Literal) {
             return ((Literal) node).getType();
