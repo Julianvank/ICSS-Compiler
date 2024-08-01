@@ -47,13 +47,13 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 stylesheet: (variableAssignment* stylerule+) EOF;
 
-stylerule : (selector OPEN_BRACE (ifClause | declaration | variableAssignment)* CLOSE_BRACE) ;
+stylerule : (selector OPEN_BRACE body CLOSE_BRACE) ;
 
 selector : (idSelector | classSelector | tagSelector);
 declaration : (property COLON expression SEMICOLON);
 
-ifClause : IF BOX_BRACKET_OPEN variableReference BOX_BRACKET_CLOSE OPEN_BRACE (ifClause | declaration | variableAssignment)* (CLOSE_BRACE | elseClause);
-elseClause: CLOSE_BRACE ELSE OPEN_BRACE (ifClause | declaration | variableAssignment)* CLOSE_BRACE;
+ifClause : IF BOX_BRACKET_OPEN variableReference BOX_BRACKET_CLOSE OPEN_BRACE body (CLOSE_BRACE | elseClause);
+elseClause: CLOSE_BRACE ELSE OPEN_BRACE body CLOSE_BRACE;
 
 variableAssignment : variableReference ASSIGNMENT_OPERATOR expression SEMICOLON;
 variableReference : CAPITAL_IDENT;
@@ -65,6 +65,8 @@ expression : literal
             | expression PLUS expression+;
 
 literal : colorLiteral | pixelLiteral | percentageLiteral | boolLiteral | scalarLiteral | variableReference;
+
+body : (ifClause | declaration | variableAssignment)*;
 
 idSelector : ID_IDENT;
 classSelector : CLASS_IDENT;
