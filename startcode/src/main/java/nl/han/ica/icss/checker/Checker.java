@@ -18,8 +18,7 @@ public class Checker {
 
     public void check(AST ast) {
         symbolTable = new LinkedList<>();
-        pushScope();
-        traverseAST(ast.root);
+        traverseASTNode(ast.root);
     }
 
     public void pushScope() {
@@ -30,29 +29,21 @@ public class Checker {
         symbolTable.removeFirst();
     }
 
-    private void traverseAST(ASTNode node) {
-
-//        for (ASTVisitor vis = new ASTVisitor(node); vis.isValid(); vis.advance()) {
-        for (ASTNode cNode : node.getChildren()) {
-            if (cNode instanceof VariableAssignment) {
-                checkAndAssignVariable(cNode);
-            }
-            if (cNode instanceof Stylerule) {
-                checkStyleRule(cNode);
-            }
-        }
-    }
-
-    private void checkStyleRule(ASTNode node) {
+    private void traverseASTNode(ASTNode node) {
         pushScope();
 
         List<ASTNode> variables = new ArrayList<>();
         List<ASTNode> declarations = new ArrayList<>();
         List<ASTNode> ifStatements = new ArrayList<>();
+        List<ASTNode> stylerules = new ArrayList<>();
 
         for (ASTNode n : node.getChildren()) {
             if (n instanceof VariableAssignment) {
                 variables.add(n);
+            }
+            if (n instanceof Stylerule) {
+                stylerules.add(n);
+//                traverseASTNode(n);
             }
             if (n instanceof Declaration) {
                 declarations.add(n);
@@ -62,15 +53,17 @@ public class Checker {
             }
 
         }
-        variables.forEach((this::checkAndAssignVariable));
+        variables.forEach(this::checkAndAssignVariable);
+        stylerules.forEach(this::traverseASTNode);
         declarations.forEach((n) -> evaluateExpression(((Declaration) n).expression));
         ifStatements.forEach(this::evaluateIfClause);
 
         popScope();
     }
 
+
     private void evaluateElseClause(ASTNode astNode){
-        checkStyleRule(astNode);
+        traverseASTNode(astNode);
     }
 
     private void evaluateIfClause(ASTNode astNode){
@@ -80,7 +73,11 @@ public class Checker {
             astNode.setError("An if statement expects a conditional Boolean as expression");
         }
 
-        checkStyleRule(astNode);
+        traverseASTNode(astNode);
+
+        if(cNode.elseClause != null){
+            evaluateElseClause(astNode);
+        }
     }
 
     private void evaluateExpression(ASTNode node) {
