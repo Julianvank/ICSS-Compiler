@@ -1,76 +1,77 @@
 package nl.han.ica.icss.transforms;
 
 import nl.han.ica.datastructures.IHANLinkedList;
+import nl.han.ica.datastructures.LinkedList;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.PercentageLiteral;
-import nl.han.ica.icss.ast.literals.PixelLiteral;
-import nl.han.ica.icss.ast.literals.ScalarLiteral;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
-import nl.han.ica.icss.ast.types.ExpressionType;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class Evaluator implements Transform {
 
-    private IHANLinkedList<HashMap<String, Literal>> variableValues;
+    private IHANLinkedList<HashMap<String, Literal>> symbolTable;
+
+    public void pushScope() {
+        symbolTable.addFirst(new HashMap<>());
+    }
+
+    public void popScope() {
+        symbolTable.removeFirst();
+    }
 
     public Evaluator() {
-        //variableValues = new HANLinkedList<>();
+        symbolTable = new LinkedList<>();
     }
 
     @Override
     public void apply(AST ast) {
-        //variableValues = new HANLinkedList<>();
 
-        /*
-         * traverse tree recursive
-         * if expression getValue
-         * replace expression with Lateral
-         */
-
+        traverseAst(ast.root);
     }
-    private void traverse(ASTNode node){
+
+    private void traverseAst(ASTNode node){
+        pushScope();
+
         if(node == null){
             return;
         }
+        for (ASTNode child : node.getChildren()) {
 
-        for(ASTNode child : node.getChildren()){
-            if(node instanceof VariableAssignment){
-                addVariable(node);
-                return;
+            //TODO write if for instance of push scope
+            if(child instanceof Stylerule){
+                pushScope();
             }
-            if(node instanceof Expression){
-                replaceExpressionWithLiteral(node);
+            if(child instanceof IfClause){
+                pushScope();
             }
-            if(node instanceof IfClause){
-                evaluateIfClause(node);
-            }
+            checkType(child);
+
+            traverseAst(child);
+        }
+    }
+
+    private void checkType(ASTNode node) {
+        if (node == null) {
+            return;
         }
 
-
+        if (node instanceof IfClause){
+            node = EvaluateAndTransformIfClause(node);
+            traverseAst(node);
+        }
+        if (node instanceof Expression){
+            node = EvaluateAndTransformExpression(node);
+        }
     }
 
-    private void evaluateIfClause(ASTNode node) {
+    private ASTNode EvaluateAndTransformExpression(ASTNode node) {
+        //TODO add variable to symbol table;
+        System.out.println(node.getNodeLabel());
+        return node;
     }
 
-    private void replaceExpressionWithLiteral(ASTNode node) {
-//        if(node instanceof Operation){
-//
-//        }
-//        if(node instanceof Literal){
-//            return
-//        }
-    }
+    private ASTNode EvaluateAndTransformIfClause(ASTNode node) {
+        System.out.println(node.getNodeLabel() + " " + ((IfClause) node).conditionalExpression);
 
-    private void addVariable(ASTNode node){
-        //TODO if instance of expression. Get expressionValue.
-        //TODO put name and value in LinkedList(Stack)
+        return node;
     }
-
-//    private Literal getValue(ASTNode node) {
-//
-//    }
 }

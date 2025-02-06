@@ -24,7 +24,7 @@ public class LinkedList<AnyType> implements IHANLinkedList<AnyType> {
     }
 
     /**
-     * Clears list. Size equals 0 afterwards
+     * Clears list. Size equals 0 afterward
      */
     @Override
     public void clear() {
