@@ -1,9 +1,5 @@
 package nl.han.ica.datastructures;
 
-import nl.han.ica.icss.ast.types.ExpressionType;
-
-import java.util.HashMap;
-
 public class HANStack<AnyType> implements IHANStack<AnyType>{
     private AnyType[] theArray;
     private int topOfStack; //array Index of top elements
@@ -68,6 +64,4 @@ public class HANStack<AnyType> implements IHANStack<AnyType>{
     public int getTopOfStack(){
         return topOfStack;
     }
-    
-
 }
