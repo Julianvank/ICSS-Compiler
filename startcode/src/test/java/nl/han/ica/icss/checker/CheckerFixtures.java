@@ -9,54 +9,6 @@ import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
 
 public class CheckerFixtures {
-    public static AST uncheckedLevel0() {
-        Stylesheet stylesheet = new Stylesheet();
-		/*
-		p {
-			background-color: #ffffff;
-			width: 500px;
-		}
-		*/
-        stylesheet.addChild((new Stylerule())
-                .addChild(new TagSelector("p"))
-                .addChild((new Declaration("background-color"))
-                        .addChild(new ColorLiteral("#ffffff")))
-                .addChild((new Declaration("width"))
-                        .addChild(new PixelLiteral("500px")))
-        );
-		/*
-		a {
-			color: #ff0000;
-		}
-		*/
-        stylesheet.addChild((new Stylerule())
-                .addChild(new TagSelector("a"))
-                .addChild((new Declaration("color"))
-                        .addChild(new ColorLiteral("#ff0000")))
-        );
-		/*
-		#menu {
-			width: 520px;
-		}
-		*/
-        stylesheet.addChild((new Stylerule())
-                .addChild(new IdSelector("#menu"))
-                .addChild((new Declaration("width"))
-                        .addChild(new PixelLiteral("520px")))
-        );
-		/*
-		.menu {
-			color: #000000;
-		}
-		*/
-        stylesheet.addChild((new Stylerule())
-                .addChild(new ClassSelector(".menu"))
-                .addChild((new Declaration("color"))
-                        .addChild(new ColorLiteral("#000000")))
-        );
-
-        return new AST(stylesheet);
-    }
 
     public static AST VariableDefinition_true() {
         Stylesheet stylesheet = new Stylesheet();
@@ -421,13 +373,6 @@ public class CheckerFixtures {
                 .addChild(new PixelLiteral("50px"))
         );
 
-   	    /*
-	        p {
-	        background-color: #ffffff;
-	        width: ParWidth;
-            }
-	    */
-
         /*
             p {
             width: WidthVar + 50px * 5;
@@ -443,6 +388,78 @@ public class CheckerFixtures {
                                         .addChild(new ScalarLiteral(5)))
 
                         )
+                )
+        );
+
+        return new AST(stylesheet);
+    }
+
+    public static AST propertyShouldHaveLimitedNames() {
+        Stylesheet stylesheet = new Stylesheet();
+        /*
+            WidthVar := 50px;
+
+		 */
+        stylesheet.addChild((new VariableAssignment())
+                .addChild(new VariableReference("black"))
+                .addChild(new PixelLiteral("000000"))
+        );
+
+        /*
+        Controleer of bij declaraties het type van de value klopt met de property. Declaraties zoals width: #ff0000 of color: 12px zijn natuurlijk onzin.
+            p {
+            width: WidthVar + 50px;
+            height: 50px
+            color: #FFFFFF
+            background-color: black
+
+         */
+        stylesheet.addChild((new Stylerule()
+                .addChild(new TagSelector("p"))
+                .addChild(new Declaration("width")
+                        .addChild(new PixelLiteral(50)))
+                .addChild(new Declaration("height")
+                        .addChild(new PixelLiteral(50)))
+                .addChild(new Declaration("color")
+                        .addChild(new ColorLiteral("#FFFFFF")))
+                .addChild(new Declaration("background-color")
+                        .addChild(new VariableReference("black")))
+                )
+        );
+
+        return new AST(stylesheet);
+    }
+
+    public static AST propertyShouldHaveLogicalValue() {
+        Stylesheet stylesheet = new Stylesheet();
+        /*
+            WidthVar := 50px;
+
+		 */
+        stylesheet.addChild((new VariableAssignment())
+                .addChild(new VariableReference("black"))
+                .addChild(new PixelLiteral("000000"))
+        );
+
+        /*
+        Controleer of bij declaraties het type van de value klopt met de property. Declaraties zoals width: #ff0000 of color: 12px zijn natuurlijk onzin.
+            p {
+            width: WidthVar + 50px;
+            height: 50px
+            color: #FFFFFF
+            background-color: black
+
+         */
+        stylesheet.addChild((new Stylerule()
+                        .addChild(new TagSelector("p"))
+                        .addChild(new Declaration("width")
+                                .addChild(new ColorLiteral("FFFFFF")))
+                        .addChild(new Declaration("height")
+                                .addChild(new PixelLiteral(50)))
+                        .addChild(new Declaration("color")
+                                .addChild(new ColorLiteral("#FFFFFF")))
+                        .addChild(new Declaration("background-color")
+                                .addChild(new VariableReference("black")))
                 )
         );
 

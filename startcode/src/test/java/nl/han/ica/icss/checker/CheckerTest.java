@@ -142,4 +142,15 @@ class CheckerTest {
         printErrors(ast);
         assertTrue(ast.getErrors().isEmpty());
     }
+
+    @Test
+    void propertyShouldHaveLogicalValue(){
+        Checker sut = new Checker();
+        AST ast = CheckerFixtures.propertyShouldHaveLogicalValue();
+
+        sut.check(ast);
+
+        printErrors(ast);
+        assertFalse(ast.getErrors().isEmpty());
+    }
 }

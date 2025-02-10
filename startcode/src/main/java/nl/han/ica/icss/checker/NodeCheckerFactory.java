@@ -23,6 +23,7 @@ public class NodeCheckerFactory{
         if(node instanceof MultiplyOperation) return new MultiplicationChecker(node, table);
 
         if(node instanceof Expression) return new ExpressionChecker(node, table);
+        if(node instanceof Declaration) return new DeclarationChecker(node, table);
 
         return null;
     }

@@ -50,7 +50,7 @@ public abstract class OperationChecker extends NodeCheckerBase {
 
     }
 
-    private ASTNode evaluateExpression(ASTNode node) {
+    public ASTNode evaluateExpression(ASTNode node) {
         if (node instanceof Operation) {
             Operation operation = (Operation) node;
             ASTNode lhs = evaluateExpression(operation.lhs);
