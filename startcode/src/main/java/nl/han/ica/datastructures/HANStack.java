@@ -27,7 +27,7 @@ public class HANStack<AnyType> implements IHANStack<AnyType>{
     @Override
     public AnyType pop() throws UnderflowException {
         if(isEmpty()){
-            throw new UnderflowException("ArrayStack topAndPop");
+            throw new UnderflowException("ArrayStack Pop");
         }
         return theArray[topOfStack--];
     }
@@ -61,7 +61,9 @@ public class HANStack<AnyType> implements IHANStack<AnyType>{
         this.theArray = tmp;
     }
 
+
     public int getTopOfStack(){
         return topOfStack;
     }
+    public void setTopOfStack(int topOfStack){this.topOfStack = topOfStack;}
 }

@@ -15,10 +15,12 @@ import java.util.*;
 
 public class Checker {
 
-    //    private HANStack<HashMap<String, ExpressionType>> symbolTable;
     private SymbolTable symbolTable;
     private AST ast;
     private NodeCheckerFactory nodeCheckerFactory;
+    private static final boolean PUSH_SCOPE = true;
+    private static final boolean POP_SCOPE = false;
+
 
     public SymbolTable getSymbolTable() {
         return symbolTable;
@@ -34,27 +36,81 @@ public class Checker {
     }
 
 
+    private ASTNode walkAST(ASTNode node) {
+        modifyScope(node, PUSH_SCOPE);
 
-    private void walkAST(ASTNode node){
-        NodeCheckerBase nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
+        //GET CHILDREN
+        ArrayList<ASTNode> children = new ArrayList<>(node.getChildren());
 
+        //CREATE FACTORY
+        NodeCheckerBase nodeChecker;
+        nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
+
+
+        //CHECK NODE
         if(nodeChecker != null) {
-            if (nodeChecker.isShouldPushScope()){
-                symbolTable.pushScope();
-            }
             nodeChecker.checkNode();
         }
 
-        ArrayList<ASTNode> children = node.getChildren();
+        //IF CHILDREN
+        if (!children.isEmpty()) {
+            ArrayList<ASTNode> newChildren = new ArrayList<>();
+            //FOREACH CHILD C
+            for (ASTNode cNode : children) {
+                ASTNode walkedNode = walkAST(cNode);
+//                node.removeChild(cNode);
+//                node.addChild(walkedNode);
+            }
 
-        for (ASTNode cNode : children) {
-            walkAST(cNode);
         }
 
-        if (nodeChecker != null && nodeChecker.isShouldPushScope()) {
+
+
+        //CHECK SCOPE
+        modifyScope(node, POP_SCOPE);
+
+        return node;
+    }
+
+    private void modifyScope(ASTNode node, boolean pushOrPop) {
+        NodeCheckerBase nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
+
+        if (nodeChecker == null) return;
+        if (!nodeChecker.isShouldPushScope()) return;
+
+        if(pushOrPop == PUSH_SCOPE){
+            symbolTable.pushScope();
+        } else if (pushOrPop == POP_SCOPE) {
             symbolTable.popScope();
         }
     }
+
+//    private void walkAST(ASTNode node){
+//
+//
+//        ArrayList<ASTNode> children = node.getChildren();
+//
+//        for (ASTNode cNode : children) {
+//            walkAST(cNode);
+//        }
+//
+//        NodeCheckerBase nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
+//
+//        if(nodeChecker != null) {
+//            if (nodeChecker.isShouldPushScope()){
+//                symbolTable.pushScope();
+//            }
+//        }
+//
+//        if (nodeChecker != null) {
+//            node = nodeChecker.checkNode();
+//        }
+//
+//
+//        if (nodeChecker != null && nodeChecker.isShouldPushScope()) {
+//            symbolTable.popScope();
+//        }
+//    }
 
 //    private void traverseASTNode(ASTNode node) {
 //        pushScope();

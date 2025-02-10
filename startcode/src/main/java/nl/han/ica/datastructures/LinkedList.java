@@ -121,10 +121,6 @@ public class LinkedList<AnyType> implements IHANLinkedList<AnyType> {
         System.out.println();
     }
 
-
-
-
-
     public LinkedListIterator<AnyType> zeroth(){
         return new LinkedListIterator<AnyType>(header);
     }

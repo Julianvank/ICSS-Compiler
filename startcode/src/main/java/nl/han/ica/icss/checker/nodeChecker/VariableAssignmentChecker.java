@@ -12,17 +12,14 @@ public class VariableAssignmentChecker extends NodeCheckerBase {
     }
 
     @Override
-    public void checkNode(){
+    public ASTNode checkNode(){
         VariableAssignment varAss = (VariableAssignment) node;
         String name = varAss.name.name;
         Expression expression = varAss.expression;
 
         //TODO check of declaraties een logisch type hebben.
-        addToSymbolTable(name, expression);
-    }
+        symbolTable.addSymbol(name, expression);
 
-    private void addToSymbolTable(String name, Expression expression) {
-        symbolTable.getTop().put(name, expression);
+        return node;
     }
-
 }

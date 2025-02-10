@@ -1,6 +1,7 @@
 package nl.han.ica.icss.checker.nodeChecker;
 
 import nl.han.ica.datastructures.LinkedListIterator;
+import nl.han.ica.icss.ast.AST;
 import nl.han.ica.icss.ast.ASTNode;
 import nl.han.ica.icss.ast.Expression;
 import nl.han.ica.icss.ast.VariableReference;
@@ -16,23 +17,14 @@ public class VariableReferenceChecker extends NodeCheckerBase{
     }
 
     @Override
-    public void checkNode() {
+    public ASTNode checkNode() {
         String name = ((VariableReference) node).name;
-        SymbolTable copyTable = new SymbolTable(symbolTable.getSymbolTable());
 
-        //Look at each layer of the stack
-        for(; copyTable.getSymbolTable().isEmpty(); copyTable.popScope()){
-            if(copyTable.getTop().containsKey(name)){
-                return;
-            }
-        }
-        node.setError("variable: " + name + "has not been declared");
+        Expression expression = symbolTable.findSymbol(name);
+        if(expression != null) {node = expression; return node;}
 
-//        for (; copyTable.getSymbolTable().isEmpty(); itr.advance()) {
-//            if (itr.retrieve() != null && itr.retrieve().containsKey(name)) {
-//                return;
-//            }
-//        }
-//        node.setError("Variable not set");
+        node.setError("variable: " + name + " has not been declared");
+
+        return node;
     }
 }

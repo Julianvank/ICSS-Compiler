@@ -5,7 +5,7 @@ import nl.han.ica.icss.checker.SymbolTable;
 
 public abstract class NodeCheckerBase{
 
-    private boolean shouldPushScope = false;
+    private final boolean shouldPushScope = false;
     protected ASTNode node;
     protected SymbolTable symbolTable;
 
@@ -18,7 +18,7 @@ public abstract class NodeCheckerBase{
         return shouldPushScope;
     }
 
-    public void checkNode(){
-        if(node == null) return;
+    public ASTNode checkNode(){
+        return node;
     }
 }
