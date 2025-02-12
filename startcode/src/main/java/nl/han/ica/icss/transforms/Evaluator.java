@@ -3,75 +3,49 @@ package nl.han.ica.icss.transforms;
 import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.datastructures.LinkedList;
 import nl.han.ica.icss.ast.*;
+import nl.han.ica.icss.checker.SymbolTable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Evaluator implements Transform {
 
-    private IHANLinkedList<HashMap<String, Literal>> symbolTable;
-
-    public void pushScope() {
-        symbolTable.addFirst(new HashMap<>());
-    }
-
-    public void popScope() {
-        symbolTable.removeFirst();
-    }
+    private SymbolTable symbolTable;
 
     public Evaluator() {
-        symbolTable = new LinkedList<>();
+        symbolTable = new SymbolTable();
     }
 
     @Override
     public void apply(AST ast) {
-
-        traverseAst(ast.root);
+        ast.setRoot((Stylesheet) walkAst(ast.root));
     }
 
-    private void traverseAst(ASTNode node){
-        pushScope();
+    private ASTNode walkAst(ASTNode node){
+        //checkScope
 
-        if(node == null){
-            return;
+//        node = evaluateNode(node);
+
+        if(node instanceof VariableAssignment) {
+            //check expression node and potentially change the Operation to a Literal.
+            //Push var in symbolTable.
         }
-        for (ASTNode child : node.getChildren()) {
 
-            //TODO write if for instance of push scope
-            if(child instanceof Stylerule){
-                pushScope();
-            }
-            if(child instanceof IfClause){
-                pushScope();
-            }
-            checkType(child);
+        ArrayList<ASTNode> children = new ArrayList<>(node.getChildren());
 
-            traverseAst(child);
+        for (ASTNode cNode : children){
+            node.removeChild(cNode);
+            cNode = walkAst(cNode);
+            node.addChild(cNode);
         }
     }
 
-    private void checkType(ASTNode node) {
-        if (node == null) {
-            return;
-        }
-
-        if (node instanceof IfClause){
-            node = EvaluateAndTransformIfClause(node);
-            traverseAst(node);
-        }
-        if (node instanceof Expression){
-            node = EvaluateAndTransformExpression(node);
-        }
+    public SymbolTable getSymbolTable(){
+        return symbolTable;
     }
+//
+//    public ASTNode evaluateNode(ASTNode node){
+//
+//    }
 
-    private ASTNode EvaluateAndTransformExpression(ASTNode node) {
-        //TODO add variable to symbol table;
-        System.out.println(node.getNodeLabel());
-        return node;
-    }
-
-    private ASTNode EvaluateAndTransformIfClause(ASTNode node) {
-        System.out.println(node.getNodeLabel() + " " + ((IfClause) node).conditionalExpression);
-
-        return node;
-    }
 }
