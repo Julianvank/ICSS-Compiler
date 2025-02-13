@@ -438,7 +438,7 @@ public class CheckerFixtures {
 		 */
         stylesheet.addChild((new VariableAssignment())
                 .addChild(new VariableReference("black"))
-                .addChild(new PixelLiteral("000000"))
+                .addChild(new ColorLiteral("#000000"))
         );
 
         /*
@@ -453,7 +453,7 @@ public class CheckerFixtures {
         stylesheet.addChild((new Stylerule()
                         .addChild(new TagSelector("p"))
                         .addChild(new Declaration("width")
-                                .addChild(new ColorLiteral("FFFFFF")))
+                                .addChild(new ColorLiteral("#FFFFFF")))
                         .addChild(new Declaration("height")
                                 .addChild(new PixelLiteral(50)))
                         .addChild(new Declaration("color")

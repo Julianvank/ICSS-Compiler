@@ -1,29 +1,24 @@
 package nl.han.ica.icss.checker;
 
+import nl.han.ica.datastructures.SymbolTable;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.checker.nodeChecker.*;
-import nl.han.ica.icss.checker.nodeChecker.operations.AdditionChecker;
-import nl.han.ica.icss.checker.nodeChecker.operations.MultiplicationChecker;
-import nl.han.ica.icss.checker.nodeChecker.operations.SubtractionChecker;
+
+import nl.han.ica.icss.checker.nodeChecker.OperationChecker;
 
 public class NodeCheckerFactory{
 
     public NodeCheckerBase createNodeChecker(Checker checker, ASTNode node){
         SymbolTable table = checker.getSymbolTable();
         if(node instanceof Literal) return null;
-        if(node instanceof VariableReference) return new VariableReferenceChecker(node, table);
-        if(node instanceof VariableAssignment) return new VariableAssignmentChecker(node, table);
-        if(node instanceof IfClause) return new IfClauseChecker(node, table);
+        if(node instanceof VariableReference) return new VariableReferenceChecker(table);
+        if(node instanceof VariableAssignment) return new VariableAssignmentChecker(table);
+        if(node instanceof IfClause) return new IfClauseChecker(table);
 
-        if(node instanceof AddOperation) return new AdditionChecker(node, table);
-        if(node instanceof SubtractOperation) return new SubtractionChecker(node, table);
-        if(node instanceof MultiplyOperation) return new MultiplicationChecker(node, table);
+        if(node instanceof Operation) return new OperationChecker(table);
 
-        if(node instanceof Expression) return new ExpressionChecker(node, table);
-        if(node instanceof Declaration) return new DeclarationChecker(node, table);
+        if(node instanceof Expression) return new ExpressionChecker(table);
+        if(node instanceof Declaration) return new DeclarationChecker(table);
 
         return null;
     }

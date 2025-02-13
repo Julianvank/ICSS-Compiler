@@ -1,4 +1,4 @@
-package nl.han.ica.icss.checker;
+package nl.han.ica.datastructures;
 
 import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.LinkedList;
@@ -44,4 +44,12 @@ public class SymbolTable {
         symbolTable.getFirst().put(name, expression);
     }
 
+    /*
+        Potential rework:
+        Map<ASTNode, LinkedList> scopes;
+        Map<String, Literal>
+     */
+    private class Scope<AnyType>{
+
+    }
 }
