@@ -1,5 +1,6 @@
 package nl.han.ica.icss.ast;
 
+import nl.han.ica.datastructures.SymbolTable;
 import nl.han.ica.icss.checker.SemanticError;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Objects;
 public class AST {
     //The root of the tree
     public Stylesheet root;
+    private SymbolTable symbolTable;
 
     public AST() {
         root = new Stylesheet();
@@ -53,5 +55,13 @@ public class AST {
     @Override
     public int hashCode() {
         return Objects.hash(root);
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public void setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
     }
 }

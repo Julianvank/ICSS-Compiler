@@ -25,8 +25,9 @@ public class Checker {
         symbolTable = new SymbolTable();
         nodeCheckerFactory = new NodeCheckerFactory();
 
-        symbolTable.pushScope();
+        symbolTable.pushScope(ast.root);
         walkAST(ast.root);
+        ast.setSymbolTable(symbolTable);
     }
 
 
@@ -68,11 +69,10 @@ public class Checker {
     private void modifyScope(ASTNode node, boolean pushOrPop) {
         NodeCheckerBase nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
 
-        if (nodeChecker == null) return;
-        if (!nodeChecker.isShouldPushScope()) return;
+        if (!NodeCheckerFactory.shouldScopeBePushed(node)) return;
 
         if(pushOrPop == PUSH_SCOPE){
-            symbolTable.pushScope();
+            symbolTable.pushScope(node);
         } else if (pushOrPop == POP_SCOPE) {
             symbolTable.popScope();
         }

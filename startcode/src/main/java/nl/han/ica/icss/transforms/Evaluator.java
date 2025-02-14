@@ -24,8 +24,8 @@ public class Evaluator implements Transform {
 
     @Override
     public void apply(AST ast) {
-
-        traverseAst(ast.root);
+        System.out.println(ast.getSymbolTable().toString());;
+//        traverseAst(ast.root);
     }
 
     private void traverseAst(ASTNode node){
