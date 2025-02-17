@@ -36,6 +36,9 @@ public class SymbolTable {
     }
 
     public void findScope(ASTNode key){
+        if (treeNavigator.current == null) {
+            return;
+        }
         if(treeNavigator.current.children.containsKey(key)){
             treeNavigator.current = treeNavigator.current.children.get(key);
         }

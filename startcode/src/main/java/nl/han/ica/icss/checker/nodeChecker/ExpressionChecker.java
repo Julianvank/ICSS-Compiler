@@ -14,10 +14,8 @@ public class ExpressionChecker extends NodeCheckerBase {
         super(table);
     }
 
-    //TODO write checkLogic
-
     @Override
-    public ASTNode checkNode(ASTNode node) {
+    public Expression checkNode(ASTNode node) {
         Expression expression = (Expression) node;
 
         if(expression instanceof Operation){

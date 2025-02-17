@@ -15,7 +15,7 @@ import nl.han.ica.icss.transforms.Evaluator;
 import nl.han.ica.icss.transforms.Transform;
 import org.junit.jupiter.api.Test;
 
-public class ParserTest {
+public class CheckAndTransformTest {
 
     @Test
     void checkAndTransformStyleSheet(){

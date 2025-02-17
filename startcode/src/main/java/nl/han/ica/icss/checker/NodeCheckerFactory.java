@@ -24,10 +24,10 @@ public class NodeCheckerFactory{
     }
 
     public static boolean shouldScopeBePushed(ASTNode node){
-        if(node instanceof IfClause) return true;
-        if(node instanceof ElseClause) return true;
-        if(node instanceof Stylerule) return true;
-        return false;
+        if(node instanceof IfClause) return false;
+        if(node instanceof ElseClause) return false;
+        if(node instanceof Stylerule) return false;
+        return true;
     }
 
 }
