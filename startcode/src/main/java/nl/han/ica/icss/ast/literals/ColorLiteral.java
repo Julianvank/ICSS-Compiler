@@ -29,8 +29,4 @@ public class ColorLiteral extends Literal {
         return Objects.hash(value);
     }
 
-    @Override
-    public ExpressionType getType() {
-        return ExpressionType.COLOR;
-    }
 }

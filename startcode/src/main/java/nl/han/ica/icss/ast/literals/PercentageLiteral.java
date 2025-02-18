@@ -34,8 +34,4 @@ public class PercentageLiteral extends Literal {
         return Objects.hash(value);
     }
 
-    @Override
-    public ExpressionType getType() {
-        return ExpressionType.PERCENTAGE;
-    }
 }

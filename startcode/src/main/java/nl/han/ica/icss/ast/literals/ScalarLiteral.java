@@ -32,10 +32,4 @@ public class ScalarLiteral extends Literal {
     public int hashCode() {
         return Objects.hash(value);
     }
-
-    @Override
-    public ExpressionType getType(){
-        return ExpressionType.SCALAR;
-    }
-
 }
