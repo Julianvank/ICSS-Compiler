@@ -32,6 +32,7 @@ public class Declaration extends ASTNode {
 		    children.add(expression);
 		return children;
 	}
+
 	@Override
 	public ASTNode addChild(ASTNode child) {
 		if(child instanceof PropertyName) {

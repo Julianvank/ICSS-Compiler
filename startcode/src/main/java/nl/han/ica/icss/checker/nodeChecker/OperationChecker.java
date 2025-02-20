@@ -1,9 +1,7 @@
 package nl.han.ica.icss.checker.nodeChecker;
 
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.BoolLiteral;
-import nl.han.ica.icss.ast.literals.ColorLiteral;
-import nl.han.ica.icss.ast.literals.ScalarLiteral;
+import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
@@ -27,14 +25,15 @@ public class OperationChecker extends NodeCheckerBase {
         ASTNode lhs;
         ASTNode rhs;
 
-        if(operation.lhs instanceof Operation) {
-            lhs = this.checkNode(operation.lhs);
-        }else {
+//        if(operation.lhs instanceof Operation) {
+//            lhs = checkNode(operation.lhs);
+//        }else {
             lhs = expressionChecker.checkNode(operation.lhs);
-        }
+//        }
 
         if(operation.rhs instanceof Operation) {
-            rhs = this.checkNode(operation.rhs);
+            rhs = ((Operation) operation.rhs).lhs;
+//            rhs = checkNode(operation.rhs);
         }else {
             rhs = expressionChecker.checkNode(operation.rhs);
         }
@@ -51,6 +50,7 @@ public class OperationChecker extends NodeCheckerBase {
         }
 
         if(operation instanceof MultiplyOperation){
+
             if(!(lhs instanceof ScalarLiteral) && !(rhs instanceof ScalarLiteral)){
                 node.setError("A scalar must be used in multiplication.");
                 return node;
@@ -62,7 +62,8 @@ public class OperationChecker extends NodeCheckerBase {
         }
 
 
-        return lhs;
+//        return lhs;
+        return lhs instanceof PixelLiteral || lhs instanceof PercentageLiteral ? lhs : rhs;
     }
 
 //    public ASTNode evaluateExpression(ASTNode node) {

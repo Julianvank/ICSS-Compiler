@@ -28,7 +28,6 @@ public class ASTListener extends ICSSBaseListener {
 
     //Accumulator attributes:
     private final AST ast;
-    private final Set<ParserRuleContext> visitors;
 
     //Use this to keep track of the parent nodes when recursively traversing the ast
     private final HANStack<ASTNode> currentContainer;
@@ -36,9 +35,7 @@ public class ASTListener extends ICSSBaseListener {
     public ASTListener() {
         ast = new AST();
         currentContainer = new HANStack<>();
-        visitors = new HashSet<>();
 
-//        currentContainer.push(ast);
     }
 
     public AST getAST() {

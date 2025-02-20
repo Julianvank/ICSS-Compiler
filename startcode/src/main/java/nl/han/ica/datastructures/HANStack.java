@@ -40,19 +40,6 @@ public class HANStack<AnyType> implements IHANStack<AnyType>{
         return theArray[topOfStack];
     }
 
-    /**
-     * return top of stack before poping top of stack.
-     * @return AnyType
-     * @throws UnderflowException
-     */
-    @Override
-    public AnyType peekAndPop() throws UnderflowException {
-        if(isEmpty()){
-            throw new UnderflowException("ArrayStack topAndPop");
-        }
-        return theArray[topOfStack--];
-    }
-
     private void doubleArray(AnyType[] array){
         AnyType[] tmp = (AnyType[]) new Object[array.length*2];
         for (int i = 0; i < array.length; i++) {

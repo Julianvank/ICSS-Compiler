@@ -38,40 +38,4 @@ public class ExpressionEvaluator extends NodeEvaluatorBase {
         return node;
     }
 
-    private ASTNode collapseOperation(Operation node) {
-        ASTNode lhs = evaluate(node.lhs);
-        ASTNode rhs = evaluate(node.rhs);
-
-        if (node instanceof MultiplyOperation) {
-            return multiplyNode(lhs, rhs);
-        } else if (node instanceof AddOperation) {
-            return addNode(lhs, (PixelLiteral) rhs);
-        } else if (node instanceof SubtractOperation) {
-            return subtractNode(lhs, (PixelLiteral) rhs);
-        }
-        return node;
-    }
-
-    private static ASTNode subtractNode(ASTNode lhs, PixelLiteral rhs) {
-        return lhs instanceof PixelLiteral ?
-                new PixelLiteral(((PixelLiteral) lhs).value - rhs.value) :
-                new PercentageLiteral(((PercentageLiteral) lhs).value - rhs.value);
-    }
-
-    private static ASTNode addNode(ASTNode lhs, PixelLiteral rhs) {
-        return lhs instanceof PixelLiteral ?
-                new PixelLiteral(((PixelLiteral) lhs).value + rhs.value) :
-                new PercentageLiteral(((PercentageLiteral) lhs).value + rhs.value);
-    }
-
-    private static ASTNode multiplyNode(ASTNode lhs, ASTNode rhs) {
-        if (lhs instanceof ScalarLiteral && rhs instanceof ScalarLiteral) {
-            return new ScalarLiteral(((ScalarLiteral) lhs).value * ((ScalarLiteral) rhs).value);
-        } else if (lhs instanceof ScalarLiteral) {
-            return rhs instanceof PixelLiteral ?
-                    new PixelLiteral(((ScalarLiteral) lhs).value * ((PixelLiteral) rhs).value) :
-                    new PercentageLiteral(((ScalarLiteral) lhs).value * ((PercentageLiteral) rhs).value);
-        }
-        return null;
-    }
 }

@@ -2,9 +2,9 @@ package nl.han.ica.datastructures;
 
 public class LinkedListIterator<AnyType> {
 
-    LinkedList.ListNode<AnyType> current;
+    HANLinkedList.ListNode<AnyType> current;
 
-    LinkedListIterator(LinkedList.ListNode<AnyType> theNode){
+    LinkedListIterator(HANLinkedList.ListNode<AnyType> theNode){
         current = theNode;
     }
 

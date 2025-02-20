@@ -19,7 +19,5 @@ public interface IHANStack<T> {
      */
     T peek() throws UnderflowException;
 
-    T peekAndPop() throws UnderflowException;
-
     boolean isEmpty();
 }

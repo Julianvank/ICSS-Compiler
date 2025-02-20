@@ -1,12 +1,12 @@
 package nl.han.ica.datastructures;
 
 
-public class LinkedList<AnyType> implements IHANLinkedList<AnyType> {
+public class HANLinkedList<AnyType> implements IHANLinkedList<AnyType> {
 
     private ListNode<AnyType> header;
 
-    public LinkedList() {
-        header = new ListNode<AnyType>(null);
+    public HANLinkedList() {
+        header = new ListNode<>(null);
     }
 
     /**
@@ -107,18 +107,6 @@ public class LinkedList<AnyType> implements IHANLinkedList<AnyType> {
             itr.advance();
         }
         return size;
-    }
-
-    public static <AnyType> void printList(LinkedList<AnyType> theList){
-        if(theList.isEmpty()){
-            System.out.print("List is empty.");
-        }else{
-            LinkedListIterator<AnyType> itr = theList.first();
-            for(; itr.isValid(); itr.advance()){
-                System.out.print(itr.retrieve() + " ");
-            }
-        }
-        System.out.println();
     }
 
     public LinkedListIterator<AnyType> zeroth(){

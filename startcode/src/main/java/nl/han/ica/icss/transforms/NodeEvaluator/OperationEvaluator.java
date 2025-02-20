@@ -1,8 +1,6 @@
 package nl.han.ica.icss.transforms.NodeEvaluator;
 
-import nl.han.ica.datastructures.HANStack;
-import nl.han.ica.datastructures.SymbolTable;
-import nl.han.ica.datastructures.UnderflowException;
+import nl.han.ica.datastructures.*;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
@@ -13,8 +11,11 @@ import nl.han.ica.icss.ast.operations.SubtractOperation;
 
 public class OperationEvaluator extends NodeEvaluatorBase {
 
-    HANStack<Integer> operands;
-    HANStack<Integer> operators;
+    IHANQueue<Token> infix;
+    IHANStack<Integer> postfix;
+    IHANStack<Integer> operators;
+
+    IHANStack<Integer> operands;
     ASTNode type;
 
 
@@ -22,69 +23,77 @@ public class OperationEvaluator extends NodeEvaluatorBase {
         super(table);
 
         operands = new HANStack<>();
+
         operators = new HANStack<>();
+        operators.push(EOL);
+        infix = new HANQueue<>();
+        postfix = new HANStack<>();
     }
 
     @Override
     public ASTNode evaluate(ASTNode node) {
-        //traverseNode(node);
-        /*
-           traverseNode(node)
-           while(operators.isValid()){
-             operateStack()
-           }
-           int value = operands.top();
+        getInfixExpression(node);
+        infix.enqueue(new Token(EOL));
 
-           return createNewNode(type, value);
-         */
 
-        try {
-            traverseNode(node);
+        Token lastToken;
+        do {
+            lastToken = infix.dequeue();
+            processToken(lastToken);
+        } while (lastToken.getType() != EOL);
 
-            while(!operators.isEmpty()){
-                operateStack(operators.peek());
-            }
+//        return node;
 
-            int value = operands.peek();
+//
+        int value = postfix.peek();
 
-            return createNewNode(type, value);
+        return createNewNode(type, value);
 
-        } catch (UnderflowException e) {
-            throw new RuntimeException(e);
+    }
+
+    private void processToken(Token lastToken) {
+        int topOperator;
+        int lastType = lastToken.getType();
+
+        if (lastType == VALUE) {
+            postfix.push(lastToken.getValue());
+        } else {
+            while (precTable[lastType].inputSymbol <=
+                    precTable[topOperator = operators.peek()].topOfStack)
+                operateStack(topOperator);
+            if (lastType != EOL)
+                operators.push(lastType);
         }
     }
 
-    private ASTNode createNewNode(ASTNode type, int value){
-        if(type instanceof PixelLiteral) return new PixelLiteral(value);
-        if(type instanceof PercentageLiteral) return new PercentageLiteral(value);
-        if(type instanceof ScalarLiteral) return new ScalarLiteral(value);
+
+    private ASTNode createNewNode(ASTNode type, int value) {
+        if (type instanceof PixelLiteral) return new PixelLiteral(value);
+        if (type instanceof PercentageLiteral) return new PercentageLiteral(value);
+        if (type instanceof ScalarLiteral) return new ScalarLiteral(value);
         return type;
     }
 
-    private void traverseNode(ASTNode node) throws UnderflowException {
+    private void getInfixExpression(ASTNode node) {
+        node = findSymbol(node);
+        if (node instanceof Operation) {
+            Operation operation = (Operation) node;
+            getInfixExpression(operation.lhs);
+            infix.enqueue(getToken(node));
+            getInfixExpression(operation.rhs);
+        }
+    }
+
+    private ASTNode findSymbol(ASTNode node) {
         if (node instanceof VariableReference) node = table.findSymbol(((VariableReference) node).name);
+
         if (node instanceof Literal) {
-            operands.push(getValue(node));
-            if(type == null || (type instanceof ScalarLiteral && !(node instanceof ScalarLiteral))){
+            infix.enqueue(getToken(node));
+            if (type == null || (type instanceof ScalarLiteral && !(node instanceof ScalarLiteral))) {
                 type = node;
             }
         }
-        if (node instanceof Operation) {
-            Operation operation = (Operation) node;
-            ASTNode lhs = operation.lhs;
-            ASTNode rhs = operation.rhs;
-
-            traverseNode(rhs);
-            int precedence = getPrecedence(operation);
-            if (precTable[precedence].inputSymbol <= precTable[operators.peek()].topOfStack) {
-                while (precTable[precedence].inputSymbol <= precTable[operators.peek()].topOfStack) {
-                    operateStack(operators.peek());
-                }
-            } else {
-                operators.push(precedence);
-            }
-            traverseNode(lhs);
-        }
+        return node;
     }
 
     private int getValue(ASTNode node) {
@@ -95,48 +104,84 @@ public class OperationEvaluator extends NodeEvaluatorBase {
     }
 
     private void operateStack(int topOp) throws UnderflowException {
-        int rhs = operands.pop();
-        int lhs = operands.pop();
-
-        switch(topOp){
-            case ADD :
-                operands.push(lhs + rhs);
+        int rhs = postfix.pop();
+        int lhs = postfix.pop();
+        System.out.print("operating with " + lhs + " and: " + rhs);
+        switch (topOp) {
+            case ADD:
+                System.out.println(" ADD");
+                postfix.push(lhs + rhs);
                 break;
-            case SUB :
-                operands.push(lhs - rhs);
+            case SUB:
+                System.out.println(" SUB");
+                postfix.push(lhs - rhs);
                 break;
-            case MUL :
-                operands.push(lhs * rhs);
+            case MUL:
+                System.out.println(" MUL");
+                postfix.push(lhs * rhs);
                 break;
         }
         operators.pop();
     }
 
-    private static final int MUL = 0;
-    private static final int ADD = 1;
-    private static final int SUB = 2;
+    private static final int VALUE = -1;
+    private static final int EOL = 0;
+    private static final int MUL = 1;
+    private static final int ADD = 2;
+    private static final int SUB = 3;
 
     private static class Precedence {
         public int inputSymbol;
         public int topOfStack;
 
-        public Precedence(int inputSymbol, int topOfStack){
+        public Precedence(int inputSymbol, int topOfStack) {
             this.inputSymbol = inputSymbol;
             this.topOfStack = topOfStack;
         }
     }
 
-    private static final Precedence [] precTable = {
+    private static final Precedence[] precTable = {
+            new Precedence(0, -1),
             new Precedence(3, 4),
             new Precedence(1, 2),
             new Precedence(1, 2)
     };
 
-    private static int getPrecedence(ASTNode node){
-        if(node instanceof MultiplyOperation) return MUL;
-        if(node instanceof AddOperation) return ADD;
-        if(node instanceof SubtractOperation) return SUB;
+    private static int getPrecedence(ASTNode node) {
+        if (node instanceof MultiplyOperation) return MUL;
+        if (node instanceof AddOperation) return ADD;
+        if (node instanceof SubtractOperation) return SUB;
         return -1;
+    }
+
+    public static class Token {
+        private int type = 0;
+        private int value = 0;
+
+        public Token(int type) {
+            this(type, 0);
+        }
+
+        public Token(int type, int value) {
+            this.type = type;
+            this.value = value;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public Token getToken(ASTNode node) {
+        if (node instanceof MultiplyOperation) return new Token(MUL);
+        if (node instanceof AddOperation) return new Token(ADD);
+        if (node instanceof SubtractOperation) return new Token(SUB);
+
+        return new Token(VALUE, getValue(node));
     }
 
 }
