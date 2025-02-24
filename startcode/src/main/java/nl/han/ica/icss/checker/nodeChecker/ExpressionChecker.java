@@ -18,14 +18,14 @@ public class ExpressionChecker extends NodeCheckerBase {
     public Expression checkNode(ASTNode node) {
         Expression expression = (Expression) node;
 
-        if(expression instanceof Operation){
-            operationChecker = new OperationChecker(symbolTable);
-            expression = (Expression) operationChecker.checkNode(node);
-        }
-
         if(expression instanceof VariableReference){
             referenceChecker = new VariableReferenceChecker(symbolTable);
             expression = (Expression) referenceChecker.checkNode(node);
+        }
+
+        if(expression instanceof Operation){
+            operationChecker = new OperationChecker(symbolTable);
+            expression = (Expression) operationChecker.checkNode(node);
         }
 
         return expression;

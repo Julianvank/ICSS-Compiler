@@ -9,7 +9,6 @@ import nl.han.ica.datastructures.SymbolTable;
 
 public class IfClauseChecker extends NodeCheckerBase {
 
-    private final boolean shouldPushScope = true;
     ExpressionChecker expressionChecker;
 
     public IfClauseChecker(SymbolTable table) {
@@ -21,13 +20,14 @@ public class IfClauseChecker extends NodeCheckerBase {
 
         expressionChecker = new ExpressionChecker(symbolTable);
         newNode.conditionalExpression = expressionChecker.checkNode(newNode.conditionalExpression);
-        if(newNode.conditionalExpression instanceof VariableReference){
-            newNode.conditionalExpression = symbolTable.findSymbol(((VariableReference) newNode.conditionalExpression).name);
-        }
 
-        if ((newNode.conditionalExpression instanceof BoolLiteral)) {
+        if (newNode.conditionalExpression instanceof VariableReference)
+            newNode.conditionalExpression = symbolTable.findSymbol(((VariableReference) newNode.conditionalExpression).name);
+
+
+        if ((newNode.conditionalExpression instanceof BoolLiteral))
             return node;
-        }
+
 
         node.setError("An ifClause expects a BoolLiteral as expression");
         return node;

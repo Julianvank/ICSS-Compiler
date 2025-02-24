@@ -10,7 +10,6 @@ import java.util.*;
 public class Checker {
 
     private SymbolTable symbolTable;
-    private AST ast;
     private NodeCheckerFactory nodeCheckerFactory;
     private static final boolean PUSH_SCOPE = true;
     private static final boolean POP_SCOPE = false;
@@ -21,7 +20,6 @@ public class Checker {
     }
 
     public void check(AST ast) {
-        this.ast = ast;
         symbolTable = new SymbolTable();
         nodeCheckerFactory = new NodeCheckerFactory();
 
@@ -31,35 +29,26 @@ public class Checker {
     }
 
 
-    private ASTNode walkAST(ASTNode node) {
+    private void walkAST(ASTNode node) {
         modifyScope(node, PUSH_SCOPE);
 
-        //GET CHILDREN
         ArrayList<ASTNode> children = new ArrayList<>(node.getChildren());
 
-        //CREATE FACTORY
         NodeCheckerBase nodeChecker;
         nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
 
-        //CHECK NODE
         if(nodeChecker != null) {
             nodeChecker.checkNode(node);
         }
 
-        //IF CHILDREN
         if (!children.isEmpty()) {
-            ArrayList<ASTNode> newChildren = new ArrayList<>();
-            //FOREACH CHILD C
             for (ASTNode cNode : children) {
-                ASTNode walkedNode = walkAST(cNode);
-
+                walkAST(cNode);
             }
-
         }
-        //CHECK SCOPE
+
         modifyScope(node, POP_SCOPE);
 
-        return node;
     }
 
     private void modifyScope(ASTNode node, boolean pushOrPop) {
