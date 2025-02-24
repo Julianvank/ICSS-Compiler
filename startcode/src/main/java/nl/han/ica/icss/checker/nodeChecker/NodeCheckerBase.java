@@ -1,16 +1,14 @@
 package nl.han.ica.icss.checker.nodeChecker;
 
 import nl.han.ica.icss.ast.ASTNode;
-import nl.han.ica.icss.checker.SymbolTable;
+import nl.han.ica.datastructures.SymbolTable;
 
 public abstract class NodeCheckerBase{
 
     private final boolean shouldPushScope = false;
-    protected ASTNode node;
     protected SymbolTable symbolTable;
 
-    protected NodeCheckerBase(ASTNode node, SymbolTable symbolTable){
-        this.node = node;
+    protected NodeCheckerBase(SymbolTable symbolTable){
         this.symbolTable = symbolTable;
     }
 
@@ -18,7 +16,7 @@ public abstract class NodeCheckerBase{
         return shouldPushScope;
     }
 
-    public ASTNode checkNode(){
+    public ASTNode checkNode(ASTNode node){
         return node;
     }
 }

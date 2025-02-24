@@ -4,76 +4,53 @@ import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.ColorLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
-import nl.han.ica.icss.checker.NodeCheckerFactory;
-import nl.han.ica.icss.checker.SymbolTable;
-import nl.han.ica.icss.checker.nodeChecker.operations.AdditionChecker;
-import nl.han.ica.icss.checker.nodeChecker.operations.MultiplicationChecker;
-import nl.han.ica.icss.checker.nodeChecker.operations.OperationChecker;
-import nl.han.ica.icss.checker.nodeChecker.operations.SubtractionChecker;
-
-import java.util.HashMap;
+import nl.han.ica.datastructures.SymbolTable;
 
 public class DeclarationChecker extends NodeCheckerBase {
 
-    public DeclarationChecker(ASTNode node, SymbolTable symbolTable) {
-        super(node, symbolTable);
+    public DeclarationChecker(SymbolTable symbolTable) {
+        super(symbolTable);
     }
 
     @Override
-    public ASTNode checkNode() {
-        Declaration newNode = (Declaration) node;
+    public ASTNode checkNode(ASTNode node) {
+        Declaration declaration = (Declaration) node;
 
-        Expression expression = newNode.expression;
+        ExpressionChecker expressionChecker = new ExpressionChecker(symbolTable);
+        Expression expression = expressionChecker.checkNode(declaration.expression);
 
-        if(expression instanceof VariableReference) {
-            Expression varExpression = symbolTable.findSymbol(((VariableReference) expression).name);
-            if (varExpression == null) {
-                return node;
-            }
-            newNode.expression = varExpression;
+        if(expression.hasError()) {
+            node.setError(expression.getError().description);
+            return node;
         }
+//        declaration.expression = expression;
 
-        if(expression instanceof Operation){
-            newNode.expression = (Expression) nodeCheckerFactory(expression).checkNode();
-        }
-
-        switch(newNode.property.name){
+        switch(declaration.property.name){
             case "color" :
             case "background-color" :
-                checkColor(newNode);
-                return node;
+                if(!checkColor(expression)){
+                    node.setError("The given property should use an Colour. Anything other would be quite silly. You have given me: " + expression.getNodeLabel());
+                }
+                break;
             case "width" :
             case "height" :
-                checkProportion(newNode);
-                return node;
-
+                if(!checkProportion(expression)){
+                    node.setError("The given property should use an Pixel or Percentage. Anything other would be quite silly. You have given me: " + expression.getNodeLabel());
+                }
+                break;
+            default:
+                node.setError("Declaration should be of specified property name: width, height, color, background-color. You provided: " + declaration.property.getNodeLabel());
         }
 
-        node.setError("Declaration should be of specified property name: width, height, color, background-color. You provided: " + newNode.property.getNodeLabel());
         return node;
     }
 
-    private void checkProportion(Declaration newNode) {
-        ASTNode expression = newNode.expression;
-        if(expression instanceof PixelLiteral || expression instanceof PercentageLiteral) return;
-        node.setError("The given property should use an Pixel or Percentage. Anything other would be quite silly. You have given me: " + newNode.expression.getNodeLabel());
+    private boolean checkProportion(Expression node) {
+        return node instanceof PixelLiteral || node instanceof PercentageLiteral;
     }
 
-    private void checkColor(Declaration newNode) {
-        ASTNode expression = newNode.expression;
-        if(expression instanceof ColorLiteral) return;
-        node.setError("The given property should use an Colour. Anything other would be quite silly. You have given me: " + newNode.expression.getNodeLabel());
-    }
-
-    private OperationChecker nodeCheckerFactory(ASTNode node){
-        if(node instanceof AddOperation) return new AdditionChecker(node, symbolTable);
-        if(node instanceof SubtractOperation) return new SubtractionChecker(node, symbolTable);
-        if(node instanceof MultiplyOperation) return new MultiplicationChecker(node, symbolTable);
-
-        return null;
+    private boolean checkColor(Expression node) {
+        return node instanceof ColorLiteral;
     }
 
     /*

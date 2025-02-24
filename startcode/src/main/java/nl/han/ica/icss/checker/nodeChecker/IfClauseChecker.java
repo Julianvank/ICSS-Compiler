@@ -1,23 +1,26 @@
 package nl.han.ica.icss.checker.nodeChecker;
 
 import nl.han.ica.icss.ast.ASTNode;
+import nl.han.ica.icss.ast.Expression;
 import nl.han.ica.icss.ast.IfClause;
 import nl.han.ica.icss.ast.VariableReference;
 import nl.han.ica.icss.ast.literals.BoolLiteral;
-import nl.han.ica.icss.checker.SymbolTable;
+import nl.han.ica.datastructures.SymbolTable;
 
 public class IfClauseChecker extends NodeCheckerBase {
 
     private final boolean shouldPushScope = true;
+    ExpressionChecker expressionChecker;
 
-
-    public IfClauseChecker(ASTNode node, SymbolTable table) {
-        super(node, table);
+    public IfClauseChecker(SymbolTable table) {
+        super(table);
     }
 
-    public ASTNode checkNode() {
+    public ASTNode checkNode(ASTNode node) {
         IfClause newNode = (IfClause) node;
 
+        expressionChecker = new ExpressionChecker(symbolTable);
+        newNode.conditionalExpression = expressionChecker.checkNode(newNode.conditionalExpression);
         if(newNode.conditionalExpression instanceof VariableReference){
             newNode.conditionalExpression = symbolTable.findSymbol(((VariableReference) newNode.conditionalExpression).name);
         }

@@ -1,13 +1,7 @@
 package nl.han.ica.icss.checker;
 
 import nl.han.ica.datastructures.*;
-import nl.han.ica.datastructures.LinkedList;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
-import nl.han.ica.icss.ast.types.ExpressionType;
-import nl.han.ica.icss.checker.nodeChecker.ExpressionChecker;
 import nl.han.ica.icss.checker.nodeChecker.NodeCheckerBase;
 
 import java.util.*;
@@ -31,8 +25,9 @@ public class Checker {
         symbolTable = new SymbolTable();
         nodeCheckerFactory = new NodeCheckerFactory();
 
-        symbolTable.pushScope();
+        symbolTable.pushScope(ast.root);
         walkAST(ast.root);
+        ast.setSymbolTable(symbolTable);
     }
 
 
@@ -46,10 +41,9 @@ public class Checker {
         NodeCheckerBase nodeChecker;
         nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
 
-
         //CHECK NODE
         if(nodeChecker != null) {
-            nodeChecker.checkNode();
+            nodeChecker.checkNode(node);
         }
 
         //IF CHILDREN
@@ -58,12 +52,10 @@ public class Checker {
             //FOREACH CHILD C
             for (ASTNode cNode : children) {
                 ASTNode walkedNode = walkAST(cNode);
-//                node.removeChild(cNode);
-//                node.addChild(walkedNode);
+
             }
 
         }
-
         //CHECK SCOPE
         modifyScope(node, POP_SCOPE);
 
@@ -71,13 +63,10 @@ public class Checker {
     }
 
     private void modifyScope(ASTNode node, boolean pushOrPop) {
-        NodeCheckerBase nodeChecker = nodeCheckerFactory.createNodeChecker(this, node);
-
-        if (nodeChecker == null) return;
-        if (!nodeChecker.isShouldPushScope()) return;
+        if (NodeCheckerFactory.shouldScopeBePushed(node)) return;
 
         if(pushOrPop == PUSH_SCOPE){
-            symbolTable.pushScope();
+            symbolTable.pushScope(node);
         } else if (pushOrPop == POP_SCOPE) {
             symbolTable.popScope();
         }
