@@ -70,6 +70,10 @@ public class SymbolTable {
         treeNavigator.current.content.put(name, expression);
     }
 
+    public void addScopeToParent(ASTNode key){
+
+    }
+
     @Override
     public String toString(){
 //        StringBuilder string = new StringBuilder();

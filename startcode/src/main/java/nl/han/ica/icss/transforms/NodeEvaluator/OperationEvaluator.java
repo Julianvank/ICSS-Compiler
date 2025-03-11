@@ -42,9 +42,6 @@ public class OperationEvaluator extends NodeEvaluatorBase {
             processToken(lastToken);
         } while (lastToken.getType() != EOL);
 
-//        return node;
-
-//
         int value = postfix.peek();
 
         return createNewNode(type, value);
@@ -146,13 +143,6 @@ public class OperationEvaluator extends NodeEvaluatorBase {
             new Precedence(1, 2),
             new Precedence(1, 2)
     };
-
-    private static int getPrecedence(ASTNode node) {
-        if (node instanceof MultiplyOperation) return MUL;
-        if (node instanceof AddOperation) return ADD;
-        if (node instanceof SubtractOperation) return SUB;
-        return -1;
-    }
 
     public static class Token {
         private int type = 0;

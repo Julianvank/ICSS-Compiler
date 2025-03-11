@@ -8,6 +8,7 @@ public class NodeEvaluatorFactory {
     public INodeEvaluator createNodeEvaluator(Evaluator evaluator, ASTNode node){
         SymbolTable table = evaluator.getSymbolTable();
 
+        if(node instanceof Stylerule) return new StyleRuleEvaluator(table);
         if(node instanceof Expression) return new ExpressionEvaluator(table);
         if(node instanceof IfClause) return new IfClauseEvaluator(table);
 

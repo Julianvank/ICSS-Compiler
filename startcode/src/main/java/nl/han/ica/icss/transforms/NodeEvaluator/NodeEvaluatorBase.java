@@ -12,7 +12,7 @@ public class NodeEvaluatorBase implements INodeEvaluator{
     }
 
     public ASTNode evaluate(ASTNode node){
-        System.out.println("reached: " + node.getNodeLabel());
+//        System.out.println("reached: " + node.getNodeLabel());
         return node;
     }
 }
