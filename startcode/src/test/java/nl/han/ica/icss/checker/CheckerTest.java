@@ -28,9 +28,10 @@ class CheckerTest {
     }
 
     @Test
-    void variableMustBeDefined_false(){ //CH01
+    void variableMustBeDefined_ShouldReturnError(){ //CH01
         Checker sut = new Checker();
         AST ast = CheckerFixtures.VariableDefinition_false();
+
 
         sut.check(ast);
 
