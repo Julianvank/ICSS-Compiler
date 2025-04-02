@@ -48,6 +48,14 @@ public class HANStack<AnyType> implements IHANStack<AnyType>{
         this.theArray = tmp;
     }
 
+    public String toString(){
+        StringBuilder str = new StringBuilder();
+        for (AnyType anyType : theArray) {
+            str.append(anyType);
+        }
+        return str.toString();
+    }
+
 
     public int getTopOfStack(){
         return topOfStack;

@@ -20,10 +20,10 @@ public class IfClauseEvaluator extends NodeEvaluatorBase {
         IfClause clause = (IfClause) node;
         boolean condition = getValue(clause.conditionalExpression);
 
-        if(condition){
-            return clause.body.get(0);
+        if(!condition) {
+            clause.body = clause.elseClause.body;
         }
-        return super.evaluate(node);
+        return clause;
     }
 
     public List<ASTNode> getBody(IfClause node){

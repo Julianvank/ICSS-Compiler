@@ -1,9 +1,13 @@
 package nl.han.ica.icss.transforms;
 
+import nl.han.ica.datastructures.HANStack;
+import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.datastructures.SymbolTable;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.checker.NodeCheckerFactory;
+import nl.han.ica.icss.transforms.NodeEvaluator.ExpressionEvaluator;
 import nl.han.ica.icss.transforms.NodeEvaluator.INodeEvaluator;
+import nl.han.ica.icss.transforms.NodeEvaluator.IfClauseEvaluator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +18,7 @@ public class Evaluator implements Transform {
     private static final boolean PUSH_SCOPE = true;
     private static final boolean POP_SCOPE = false;
     private SymbolTable symbolTable;
+    private IHANStack<ASTNode> depthPath;
 
     private NodeEvaluatorFactory nodeEvaluatorFactory;
 
@@ -21,56 +26,52 @@ public class Evaluator implements Transform {
     public void apply(AST ast) {
         this.symbolTable = ast.getSymbolTable();
         this.nodeEvaluatorFactory = new NodeEvaluatorFactory();
+        this.depthPath = new HANStack<>();
 
         ast.root = (Stylesheet) traverseAst(ast.root);
     }
 
     private ASTNode traverseAst(ASTNode node){
-        /*
-            Walk through the AST
-            1. check for scope
-                a) pushScope
-                b) do nothing
-            2. if(instanceOfExpression)
-                1) if(variableAssignment)
-                    a) getAssignment
-                2) if(instanceof literal)
-                    a) return
-                3) if(instanceof operation)
-                    a) calculateValue
-            3. if(instanceOf ifClause)
-                a) if(conditional == true)
-                    a) replace if with body
-                    b) if(exists)
-                        a) replace with elseclause
-            4. get children from node and walk.
+        depthPath.push(node);
 
-            5. check for scope
-                a) popScope
-         */
+        ArrayList<ASTNode> children = new ArrayList<>(node.getChildren());
 
-        modifyScope(node, PUSH_SCOPE);
+        for(ASTNode child : children){
+            traverseAst(child);
 
-        INodeEvaluator nodeEvaluator;
-        nodeEvaluator = nodeEvaluatorFactory.createNodeEvaluator(this, node);
+            if(child instanceof IfClause){
+                IfClauseEvaluator eval = new IfClauseEvaluator(symbolTable);
+                IfClause tempNode = (IfClause) eval.evaluate(child);
 
-        node = nodeEvaluator.evaluate(node);
+                node.removeChild(child);
 
-        if(node.getChildren().isEmpty()){ return node;}
-
-        List<ASTNode> children = new ArrayList<>(node.getChildren());
-
-        for (ASTNode child : children){
-            node.removeChild(child);
-            node.addChild(traverseAst(child));
+                for(ASTNode child2 : tempNode.body){
+                    node.addChild(child2);
+                }
+            }
         }
 
-//        for(ASTNode child : node.getChildren()){
-//            node.addChild(node.removeChild(traverseAst(child)));
+//        System.out.println("==========");
+//        System.out.println(depthPath.toString());
+
+//        if(node instanceof IfClause){
+//            IfClauseEvaluator evaluator = new IfClauseEvaluator(symbolTable);
+//            node = evaluator.evaluate(node);
+//            depthPath.pop();
+//            ASTNode parentNode = depthPath.peek();
+//            for(ASTNode body : node.getChildren()){
+//                parentNode.addChild(body);
+//            }
+//            depthPath.push(node);
+//            parentNode.removeChild(node);
 //        }
 
-        modifyScope(node, POP_SCOPE);
+        if(node instanceof Expression){
+            ExpressionEvaluator evaluator = new ExpressionEvaluator(symbolTable);
+            node = evaluator.evaluate(node);
+        }
 
+        depthPath.pop();
         return node;
     }
 
@@ -79,8 +80,10 @@ public class Evaluator implements Transform {
 
         if(pushOrPop == PUSH_SCOPE){
             symbolTable.findScope(node);
+            depthPath.push(node);
         } else if (pushOrPop == POP_SCOPE) {
             symbolTable.popScope();
+            depthPath.pop();
         }
     }
 
